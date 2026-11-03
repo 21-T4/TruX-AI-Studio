@@ -1,0 +1,35 @@
+// TruX model catalog. vertexId = real Google model ID (verified Nov 3, 2026, see README).
+// type: chat | research | live.  dailyLimit = free requests/day/user (null = unlimited).
+// temperature:false => model rejects/ignores temperature (3.7+, Gemini 4 use thinking levels instead).
+module.exports = {
+  "trux-1.5-core": { name: "TruX 1.5 core", type: "chat", vertexId: "gemini-3.5-flash-lite", dailyLimit: 35, temperature: true,
+    desc: "Fastest and cheapest. Great for high-volume tasks, classification and quick answers. Includes 35 free requests per day.",
+    ctx: null, maxOut: "65K", inputs: "Text, image, audio, video, PDF", outputs: "Text", sample: "Summarize the plot of Hamlet in 3 sentences." },
+  "trux-2.0": { name: "TruX 2.0", type: "chat", vertexId: "gemini-3.6-flash", fallback: "gemini-3.7-flash", temperature: true,
+    desc: "Balanced speed and intelligence for coding and agent-style tasks.",
+    ctx: null, maxOut: "65K", inputs: "Text, image, audio, video, PDF", outputs: "Text", sample: "Write a Python function that merges overlapping intervals." },
+  "trux-2.1": { name: "TruX 2.1", type: "chat", vertexId: "gemini-3.7-flash", temperature: false, thinking: null,
+    desc: "High-efficiency workhorse for coding, multimodal reasoning and agentic workflows. Supports thinking levels.",
+    ctx: "1M", maxOut: "65K", inputs: "Text, image, audio, video, PDF", outputs: "Text", sample: "Review this SQL for performance problems: SELECT * FROM orders WHERE ..." },
+  "trux-2.2": { name: "TruX 2.2", type: "chat", vertexId: "gemini-3.8-flash", temperature: false,
+    desc: "Newest Flash-class model: strong reasoning at low latency. Supports thinking levels.",
+    ctx: null, maxOut: "65K", inputs: "Text, image, audio, video, PDF", outputs: "Text", sample: "Plan a 3-day study schedule for linear algebra." },
+  "trux-4.0": { name: "TruX 4.0", type: "chat", vertexId: "gemini-3.1-pro-preview", temperature: true,
+    desc: "Pro-tier reasoning model for hard problems, long documents and analysis. (Preview)",
+    ctx: "1M", maxOut: "65K", inputs: "Text, image, audio, video, PDF", outputs: "Text", sample: "Explain the tradeoffs between CRDTs and operational transforms." },
+  "trux-5.0": { name: "TruX 5.0", type: "chat", vertexId: "gemini-4-argon", temperature: false,
+    desc: "Flagship frontier model for complex software engineering, math and science, and multi-step agents. Supports long decode.",
+    ctx: "1M", maxOut: "65K (up to 1M long decode)", inputs: "Text, image, video, audio, PDF", outputs: "Text", sample: "Design and implement a rate limiter with tests." },
+  "trux-research": { name: "TruX Research", type: "research", vertexId: "gemini-3.8-flash", grounding: true, thinking: "medium", temperature: false,
+    desc: "Web-grounded research. Searches Google, reasons over results and returns an answer with sources.",
+    ctx: null, maxOut: "65K", inputs: "Text", outputs: "Text + sources", sample: "What are the latest developments in solid-state batteries?" },
+  "trux-research-max": { name: "TruX Research Max", type: "research", vertexId: "gemini-4-argon", grounding: true, thinking: "high", temperature: false,
+    desc: "Maximum-depth web-grounded research using the flagship model with high reasoning. Slower, more thorough.",
+    ctx: "1M", maxOut: "65K", inputs: "Text", outputs: "Text + sources", sample: "Compare the leading approaches to grid-scale energy storage, with citations." },
+  "trux-live": { name: "TruX-Live", type: "live", vertexId: "gemini-3.8-live", fallback: "gemini-live-2.5-flash-native-audio",
+    desc: "Low-latency real-time voice model (Live API). Here it returns the spoken reply as a transcript; use the WebSocket code for audio streaming.",
+    ctx: null, maxOut: "-", inputs: "Text, audio, video", outputs: "Audio + transcript", sample: "Say hello and tell me a fun fact about space." },
+  "trux-live-classic": { name: "TruX-Live Classic", type: "live", vertexId: "gemini-live-2.5-flash-native-audio",
+    desc: "Previous-generation native-audio Live model with 30 HD voices, affective dialog and proactive audio.",
+    ctx: "128K", maxOut: "64K", inputs: "Text, image, audio, video", outputs: "Audio + transcript", sample: "Greet me in French and Spanish." }
+};

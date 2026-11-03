@@ -1,0 +1,9 @@
+services:
+  trux:
+    build: .
+    ports: ["3000:8080"]
+    env_file: .env
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /secrets/sa.json
+    volumes:
+      - ./sa.json:/secrets/sa.json:ro   # service account key (Vertex AI User + Cloud Datastore User)

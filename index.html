@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TruX Studio</title>
+<style>
+:root{--bg:#06060a;--p:#0d0d15;--p2:#12121c;--b:#202030;--t:#e9e9f4;--m:#7d7d96;--a:#7c5cff;--a2:#00e0ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(900px 500px at 85% -10%,#1b1244,transparent),radial-gradient(700px 400px at -10% 110%,#06283a,transparent),var(--bg);color:var(--t);font:14px Inter,system-ui,sans-serif;min-height:100vh}
+button,select,input,textarea{font:inherit;color:var(--t);background:var(--p);border:1px solid var(--b);border-radius:10px;padding:9px 12px;outline:none}
+button{cursor:pointer}button:hover{border-color:var(--a)}button.pri{background:linear-gradient(135deg,var(--a),var(--a2));border:0;color:#fff;font-weight:600}
+input:focus,textarea:focus,select:focus{border-color:var(--a)}
+.grad{background:linear-gradient(135deg,var(--a),var(--a2));-webkit-background-clip:text;color:transparent}
+#login{display:flex;height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:18px}#login h1{font-size:48px;margin:0;letter-spacing:-1px}
+#app{display:none;grid-template-columns:230px 1fr;height:100vh}
+nav{background:var(--p);border-right:1px solid var(--b);padding:18px;display:flex;flex-direction:column;gap:6px}
+nav h2{margin:0 0 14px;font-size:22px}nav a{color:var(--m);text-decoration:none;padding:10px 12px;border-radius:10px;display:block}
+nav a.on,nav a:hover{background:var(--p2);color:var(--t)}nav .sp{flex:1}.small{font-size:12px;color:var(--m)}
+#view{overflow:auto;padding:28px 34px}h1.t{margin:0 0 4px;font-size:28px;letter-spacing:-.5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;margin-top:20px}
+.card{background:linear-gradient(180deg,var(--p2),var(--p));border:1px solid var(--b);border-radius:16px;padding:18px;cursor:pointer;transition:.2s;display:flex;flex-direction:column;gap:8px}
+.card:hover{border-color:var(--a);transform:translateY(-2px);box-shadow:0 8px 30px #7c5cff22}
+.badge{display:inline-block;font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid var(--b);color:var(--a2);text-transform:uppercase;letter-spacing:.06em}
+.badge.free{color:#5dff9b}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chips button{border-radius:99px;padding:6px 14px}.chips button.on{background:var(--a);border-color:var(--a)}
+table{border-collapse:collapse;width:100%;max-width:760px}td,th{padding:9px 12px;border-bottom:1px solid var(--b);text-align:left}th{color:var(--m);font-weight:500;width:170px}
+pre{background:#000;border:1px solid var(--b);border-radius:12px;padding:14px;overflow:auto;font-size:12.5px;color:var(--a2);white-space:pre-wrap;word-break:break-all;margin:10px 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin:18px 0}.stat{background:var(--p);border:1px solid var(--b);border-radius:14px;padding:16px}
+.stat b{display:block;font-size:26px;margin-top:4px}
+.bars{display:flex;align-items:flex-end;gap:6px;height:150px;background:var(--p);border:1px solid var(--b);border-radius:14px;padding:16px}
+.bars div{flex:1;background:linear-gradient(var(--a2),var(--a));border-radius:5px 5px 0 0;min-height:2px;position:relative}
+.bars div:hover:after{content:attr(data-t);position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:#000;padding:2px 6px;border-radius:6px;font-size:11px;white-space:nowrap}
+.meter{height:8px;background:var(--b);border-radius:9px;overflow:hidden;margin-top:8px}.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--a),var(--a2))}
+.pg{display:grid;grid-template-columns:290px 1fr;gap:18px;height:calc(100vh - 70px)}.pg aside{display:flex;flex-direction:column;gap:10px;overflow:auto}
+.chat{display:flex;flex-direction:column;border:1px solid var(--b);border-radius:16px;background:var(--p);min-height:0}
+#msgs{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:760px;padding:11px 15px;border-radius:14px;white-space:pre-wrap;line-height:1.55;border:1px solid var(--b)}.u{align-self:flex-end;background:#17142e}.bt{background:var(--p2)}
+.bar{display:flex;gap:10px;padding:14px;border-top:1px solid var(--b)}.bar textarea{flex:1;resize:none;height:50px}
+label{color:var(--m);font-size:12px;text-transform:uppercase;letter-spacing:.07em}
+@media(max-width:850px){#app{grid-template-columns:1fr;grid-template-rows:auto 1fr}nav{flex-direction:row;overflow:auto;padding:10px}nav h2,nav .sp,nav .small{display:none}#view{padding:18px}.pg{grid-template-columns:1fr;height:auto}}
+</style></head><body>
+<div id="login"><h1 class="grad">TruX Studio</h1><div class="small">Build, test and ship with TruX models</div><button class="pri" id="si">Sign in with Google</button></div>
+<div id="app"><nav><h2 class="grad">TruX Studio</h2>
+<a href="#/gallery" data-p="gallery">✦ Model Garden</a><a href="#/playground" data-p="playground">▶ Playground</a>
+<a href="#/usage" data-p="usage">▤ Usage</a><a href="#/keys" data-p="keys">⚿ API Keys</a>
+<div class="sp"></div><div class="small" id="who"></div><a href="#" id="so">Sign out</a></nav><div id="view"></div></div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+const $=s=>document.querySelector(s),V=()=>$("#view");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const sk=id=>id.replace(/\./g,"_"),O=location.origin;
+const cfg=await (await fetch("/api/config")).json();
+const auth=getAuth(initializeApp(cfg));
+let MODELS=[],KEY="",hist=[],histModel="",filter="all",q="";
+const api=async(p,o={})=>{const h={"Content-Type":"application/json"};if(auth.currentUser)h.Authorization="Bearer "+await auth.currentUser.getIdToken();return (await fetch(p,{...o,headers:h})).json()};
+const model=id=>MODELS.find(m=>m.id===id);
+$("#si").onclick=()=>signInWithPopup(auth,new GoogleAuthProvider()).catch(e=>alert(e.message));
+$("#so").onclick=e=>{e.preventDefault();signOut(auth)};
+onAuthStateChanged(auth,async u=>{
+  $("#login").style.display=u?"none":"flex";$("#app").style.display=u?"grid":"none";if(!u)return;
+  $("#who").textContent=u.email;MODELS=await (await fetch("/api/models")).json();KEY=(await api("/api/me")).apiKey;route();
+});
+addEventListener("hashchange",()=>auth.currentUser&&route());
+const code=(m,k=KEY)=>{const body=`{"model":"${m.id}","messages":[{"role":"user","content":${JSON.stringify(m.sample)}}]}`;return{
+curl:`curl ${O}/v1/chat \\\n  -H "Authorization: Bearer ${k}" \\\n  -H "Content-Type: application/json" \\\n  -d '${body.replace(/'/g,"'\\''")}'`,
+python:`import requests\n\nr = requests.post(\n    "${O}/v1/chat",\n    headers={"Authorization": "Bearer ${k}"},\n    json={\n        "model": "${m.id}",\n        "messages": [{"role": "user", "content": ${JSON.stringify(m.sample)}}],\n    },\n)\nprint(r.json()["output"])`,
+node:`const r = await fetch("${O}/v1/chat", {\n  method: "POST",\n  headers: { Authorization: "Bearer ${k}", "Content-Type": "application/json" },\n  body: JSON.stringify({\n    model: "${m.id}",\n    messages: [{ role: "user", content: ${JSON.stringify(m.sample)} }],\n  }),\n});\nconsole.log((await r.json()).output);`}};
+async function route(){
+  const [,p="gallery",a]=location.hash.split("/");
+  document.querySelectorAll("nav a[data-p]").forEach(x=>x.classList.toggle("on",x.dataset.p===(p==="model"?"gallery":p)));
+  ({gallery,model:info,playground,usage,keys}[p]||gallery)(a);
+}
+const TYPE={chat:"Chat",research:"Research",live:"Live"};
+function gallery(){
+  V().innerHTML=`<h1 class="t">Model <span class="grad">Garden</span></h1><div class="small">Pick a TruX model, read its page, copy the code, or open it in the playground.</div>
+  <div class="row" style="margin-top:18px"><input id="q" placeholder="Search models…" value="${esc(q)}" style="width:260px"><div class="row chips">${["all","chat","research","live"].map(f=>`<button data-f="${f}" class="${f===filter?"on":""}">${f==="all"?"All":TYPE[f]}</button>`).join("")}</div></div><div class="grid" id="g"></div>`;
+  const draw=()=>{$("#g").innerHTML=MODELS.filter(m=>(filter==="all"||m.type===filter)&&(m.name+m.desc).toLowerCase().includes(q.toLowerCase())).map(m=>`<div class="card" data-id="${m.id}">
+    <div class="row"><span class="badge">${TYPE[m.type]}</span>${m.daily_limit?`<span class="badge free">${m.daily_limit} free/day</span>`:""}</div>
+    <b style="font-size:18px">${esc(m.name)}</b><div class="small" style="line-height:1.5">${esc(m.desc)}</div></div>`).join("")||"<div class=small>No models match.</div>";
+    document.querySelectorAll(".card").forEach(c=>c.onclick=()=>location.hash="#/model/"+c.dataset.id)};
+  $("#q").oninput=e=>{q=e.target.value;draw()};
+  document.querySelectorAll(".chips button").forEach(b=>b.onclick=()=>{filter=b.dataset.f;gallery()});draw();
+}
+function info(id){
+  const m=model(id);if(!m)return gallery();const c=code(m);let tab="curl";
+  V().innerHTML=`<a href="#/gallery" class="small" style="text-decoration:none">← Model Garden</a>
+  <h1 class="t" style="margin-top:8px">${esc(m.name)}</h1><div class="row"><span class="badge">${TYPE[m.type]}</span>${m.daily_limit?`<span class="badge free">${m.daily_limit} free requests/day</span>`:""}</div>
+  <p style="max-width:700px;line-height:1.6;color:#c4c4d8">${esc(m.desc)}</p>
+  <table><tr><th>Model ID</th><td><code>${m.id}</code></td></tr><tr><th>Type</th><td>${TYPE[m.type]}</td></tr><tr><th>Context window</th><td>${m.ctx||"—"}</td></tr>
+  <tr><th>Max output</th><td>${esc(m.max_output||"—")}</td></tr><tr><th>Inputs</th><td>${esc(m.inputs)}</td></tr><tr><th>Outputs</th><td>${esc(m.outputs)}</td></tr>
+  <tr><th>Temperature</th><td>${m.temperature?"Supported":"Not used (use the thinking parameter)"}</td></tr>
+  <tr><th>Endpoint</th><td><code>POST /v1/chat</code></td></tr></table>
+  <div class="row" style="margin:18px 0 0"><button class="pri" id="try">Open in Playground</button></div>
+  <h3 style="margin-top:26px">Code</h3><div class="row chips">${["curl","python","node"].map(t=>`<button data-t="${t}" class="${t===tab?"on":""}">${t==="node"?"Node.js":t==="curl"?"cURL":"Python"}</button>`).join("")}<button id="cp">Copy</button></div><pre id="code"></pre>
+  ${m.type==="live"?`<div class="small" style="max-width:700px">This endpoint returns the reply as a transcript. For real-time audio streaming, connect to the Live API WebSocket from your own backend using the same Google Cloud project.</div>`:""}
+  ${m.type==="research"?`<div class="small" style="max-width:700px">Responses include a <code>sources</code> array with the web pages used.</div>`:""}`;
+  const show=()=>{$("#code").textContent=c[tab];document.querySelectorAll("[data-t]").forEach(b=>b.classList.toggle("on",b.dataset.t===tab))};show();
+  document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{tab=b.dataset.t;show()});
+  $("#cp").onclick=()=>navigator.clipboard.writeText(c[tab]);$("#try").onclick=()=>location.hash="#/playground/"+m.id;
+}
+function playground(id){
+  const m=model(id)||MODELS[0];if(histModel!==m.id){hist=[];histModel=m.id}
+  V().innerHTML=`<div class="pg"><aside><h1 class="t">Playground</h1><label>Model</label><select id="pm">${MODELS.map(x=>`<option value="${x.id}" ${x.id===m.id?"selected":""}>${esc(x.name)}</option>`).join("")}</select>
+  <label>System instructions</label><textarea id="sys" rows="3" placeholder="You are…"></textarea>
+  ${m.type!=="live"?`<label>Thinking</label><select id="th"><option value="">Default</option><option>low</option><option>medium</option><option>high</option></select>`:""}
+  ${m.temperature?`<label>Temperature <span id="tv">1</span></label><input type="range" id="tp" min="0" max="2" step="0.1" value="1">`:""}
+  <button id="cl">Clear chat</button><button id="gc">Get code</button></aside>
+  <div class="chat"><div id="msgs"></div><div class="bar"><textarea id="in" placeholder="Message ${esc(m.name)}…  (Enter to send)"></textarea><button class="pri" id="sd">Send</button></div></div></div>`;
+  const add=(c,t)=>{const d=document.createElement("div");d.className="msg "+c;d.textContent=t;$("#msgs").append(d);$("#msgs").scrollTop=1e9;return d};
+  hist.forEach(h=>add(h.role==="user"?"u":"bt",h.content));
+  $("#pm").onchange=e=>location.hash="#/playground/"+e.target.value;
+  $("#cl").onclick=()=>{hist=[];$("#msgs").innerHTML=""};$("#gc").onclick=()=>location.hash="#/model/"+m.id;
+  if($("#tp"))$("#tp").oninput=e=>$("#tv").textContent=e.target.value;
+  async function send(){
+    const t=$("#in").value.trim();if(!t)return;$("#in").value="";hist.push({role:"user",content:t});add("u",t);const b=add("bt","…");
+    const body={model:m.id,messages:hist,system:$("#sys").value||undefined};
+    if($("#th")&&$("#th").value)body.thinking=$("#th").value;if($("#tp"))body.temperature=+$("#tp").value;
+    const r=await api("/v1/chat",{method:"POST",body:JSON.stringify(body)});
+    if(r.error){b.textContent="⚠ "+r.error;hist.pop();return}
+    let o=r.output||"(empty response)";if(r.sources?.length)o+="\n\nSources:\n"+r.sources.map((s,i)=>`${i+1}. ${s.title||s.url} — ${s.url}`).join("\n");
+    b.textContent=o;hist.push({role:"assistant",content:r.output||""});
+  }
+  $("#sd").onclick=send;$("#in").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}};
+}
+async function usage(){
+  V().innerHTML=`<h1 class="t">Usage</h1><div class="small">Last 14 days</div><div class="small" style="margin-top:20px">Loading…</div>`;
+  const {days=[]}=await api("/api/usage?days=14");
+  const sum=(d,f)=>Object.values(d.m||{}).reduce((a,x)=>a+(x[f]||0),0);
+  const tot=f=>days.reduce((a,d)=>a+sum(d,f),0);
+  const labels=[...Array(14)].map((_,i)=>new Date(Date.now()-(13-i)*864e5).toISOString().slice(0,10));
+  const per=labels.map(l=>{const d=days.find(x=>x.day===l);return d?sum(d,"req"):0}),mx=Math.max(...per,1);
+  const by={};days.forEach(d=>Object.entries(d.m||{}).forEach(([k,v])=>{const e=by[k]||(by[k]={req:0,in:0,out:0});e.req+=v.req||0;e.in+=v.in||0;e.out+=v.out||0}));
+  const td=days.find(d=>d.day===labels[13]);
+  const quota=MODELS.filter(m=>m.daily_limit).map(m=>{const u=td?.m?.[sk(m.id)]?.req||0;return `<div class="stat"><span class="small">${esc(m.name)} · today</span><b>${u} / ${m.daily_limit}</b><div class="meter"><i style="width:${Math.min(100,u/m.daily_limit*100)}%"></i></div></div>`}).join("");
+  V().innerHTML=`<h1 class="t">Usage</h1><div class="small">Last 14 days</div>
+  <div class="stats"><div class="stat"><span class="small">Requests</span><b>${tot("req")}</b></div><div class="stat"><span class="small">Input tokens</span><b>${tot("in").toLocaleString()}</b></div><div class="stat"><span class="small">Output tokens</span><b>${tot("out").toLocaleString()}</b></div>${quota}</div>
+  <div class="bars">${per.map((v,i)=>`<div style="height:${v/mx*100}%" data-t="${labels[i].slice(5)}: ${v}"></div>`).join("")}</div>
+  <h3 style="margin-top:26px">By model</h3><table><tr><th>Model</th><th>Requests</th><th>In</th><th>Out</th></tr>${MODELS.filter(m=>by[sk(m.id)]).map(m=>{const e=by[sk(m.id)];return `<tr><td>${esc(m.name)}</td><td>${e.req}</td><td>${e.in.toLocaleString()}</td><td>${e.out.toLocaleString()}</td></tr>`}).join("")||"<tr><td colspan=4 class=small>No usage yet</td></tr>"}</table>`;
+}
+function keys(){
+  const m=MODELS[0];
+  V().innerHTML=`<h1 class="t">API Keys</h1><div class="small">Your personal key. Use it as a Bearer token from any terminal or app.</div>
+  <pre id="k">${KEY}</pre><div class="row"><button id="cp">Copy</button><button id="rg">Regenerate</button></div>
+  <h3 style="margin-top:26px">Quick test</h3><pre>${esc(code(m).curl)}</pre>`;
+  $("#cp").onclick=()=>navigator.clipboard.writeText(KEY);
+  $("#rg").onclick=async()=>{if(!confirm("The old key stops working immediately. Continue?"))return;KEY=(await api("/api/key/regenerate",{method:"POST"})).apiKey;keys()};
+}
+</script></body></html>
