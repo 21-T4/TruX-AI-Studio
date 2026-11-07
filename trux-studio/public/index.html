@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06060a">
+<title>TruX Studio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%238b5cf6'/%3E%3Cpath d='M9 10h14M16 10v13' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="aurora"></div>
+
+<section id="login" class="login">
+  <div class="login-card">
+    <div class="mark big"><svg viewBox="0 0 32 32"><path d="M9 10h14M16 10v13" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/></svg></div>
+    <h1>TruX <span class="grad">Studio</span></h1>
+    <p>Build, test and ship with the TruX model family.</p>
+    <button id="googleBtn" class="google" type="button">
+      <svg viewBox="0 0 48 48" width="20" height="20"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
+      Continue with Google
+    </button>
+    <p id="loginErr" class="err" hidden></p>
+    <small>One TruX account across TruX Code, TruX AI and Studio.</small>
+  </div>
+</section>
+
+<div id="app" hidden data-view="play">
+  <div class="scrim" id="scrim"></div>
+
+  <aside class="nav" id="nav">
+    <div class="brand">
+      <span class="mark"><svg viewBox="0 0 32 32"><path d="M9 10h14M16 10v13" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/></svg></span>
+      <b>TruX</b><span class="pill">Studio</span>
+    </div>
+    <button class="newchat" id="newChat" type="button">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> New chat
+    </button>
+    <nav class="menu">
+      <button class="item active" data-view="play" type="button"><svg viewBox="0 0 24 24"><path d="m4 17 6-6-6-6M12 19h8"/></svg>Playground</button>
+      <button class="item" data-view="key" type="button"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 9.8-9.8M17 6l3 3M14 9l2 2"/></svg>API key</button>
+      <button class="item" data-view="docs" type="button"><svg viewBox="0 0 24 24"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5zM4 21.5A2.5 2.5 0 0 1 6.5 19H20v3H6.5"/></svg>Docs</button>
+    </nav>
+    <div class="hist-h">Recent</div>
+    <div id="history" class="history"></div>
+    <div class="me">
+      <img id="avatar" alt="" hidden>
+      <div class="me-t"><b id="meName"></b><small id="meMail"></small></div>
+      <button id="signOut" class="icon-btn" type="button" title="Sign out"><svg viewBox="0 0 24 24"><path d="M9 21H5V3h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="top">
+      <button id="openNav" class="icon-btn mob" type="button" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <div id="topTitle" class="title">Playground</div>
+      <button id="modelChip" class="chip" type="button"></button>
+      <button id="openParams" class="icon-btn mob2" type="button" aria-label="Run settings"><svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></button>
+    </header>
+
+    <section id="v-play" class="view active">
+      <div id="thread" class="thread"></div>
+      <div class="composer-wrap">
+        <div class="composer">
+          <textarea id="input" rows="1" placeholder="Ask TruX anything…" enterkeyhint="send"></textarea>
+          <button id="sendBtn" class="send" type="button" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+        </div>
+        <small class="fine">TruX can make mistakes. Check important info.</small>
+      </div>
+    </section>
+
+    <section id="v-key" class="view">
+      <div class="page">
+        <h2>API key</h2>
+        <p class="lead">Your personal key for calling TruX from the terminal, scripts and apps.</p>
+        <div id="newKeyBanner" class="banner" hidden>Copy your key now. For security it is only shown in full once. You can regenerate it any time.</div>
+        <div class="card">
+          <label>Your key</label>
+          <div class="keyrow"><code id="keyText"></code><button id="copyKey" class="btn" type="button">Copy</button></div>
+          <div class="row"><button id="regen" class="btn ghost danger" type="button">Regenerate key</button><small>Regenerating stops the old key immediately.</small></div>
+        </div>
+        <div class="card">
+          <h3>Today's usage</h3>
+          <div id="usage" class="usage"></div>
+          <small>Counters reset at 00:00 UTC.</small>
+        </div>
+        <div class="card">
+          <h3>Terminal</h3>
+          <div class="code"><div class="code-h"><span>bash</span><button class="copy" data-copy type="button">Copy</button></div><pre><code id="curlSample"></code></pre></div>
+          <h3>Python (OpenAI SDK)</h3>
+          <div class="code"><div class="code-h"><span>python</span><button class="copy" data-copy type="button">Copy</button></div><pre><code id="pySample"></code></pre></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="v-docs" class="view">
+      <div class="page docs">
+        <h2>Docs</h2>
+        <p class="lead">The TruX API is OpenAI-compatible, so most SDKs and tools work by changing the base URL and key.</p>
+        <div class="card">
+          <h3>Authentication</h3>
+          <p>Send your key as <code>Authorization: Bearer YOUR_KEY</code>. Get it on the API key page.</p>
+        </div>
+        <div class="card">
+          <h3>Endpoints</h3>
+          <p><code>POST /v1/chat/completions</code> Chat with a model. Supports <code>stream: true</code>.</p>
+          <p><code>GET /v1/models</code> List available models.</p>
+        </div>
+        <div class="card">
+          <h3>Request body</h3>
+          <p><code>model</code> one of the model ids below. <code>messages</code> list of <code>{role, content}</code> with roles <code>system</code>, <code>user</code>, <code>assistant</code>. Optional: <code>temperature</code> (0 to 2), <code>top_p</code> (0 to 1), <code>max_tokens</code>, <code>stream</code>.</p>
+        </div>
+        <div class="card">
+          <h3>Models</h3>
+          <div id="docModels"></div>
+        </div>
+        <div class="card">
+          <h3>Limits and errors</h3>
+          <p>Requests are limited per minute and per day depending on the model. <code>401</code> bad or missing key, <code>429</code> limit reached or model busy, <code>400</code> invalid request, <code>502</code> model temporarily unavailable.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="params" id="params">
+    <div class="p-head"><b>Run settings</b><button id="closeParams" class="icon-btn mob2" type="button" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="p-sec"><label>Model</label><div id="modelList" class="models"></div></div>
+    <div class="p-sec"><label for="system">System instructions</label><textarea id="system" rows="4" placeholder="Optional. Tell the model how to behave."></textarea></div>
+    <div class="p-sec"><div class="lab"><label for="temp">Temperature</label><output id="tempO"></output></div><input type="range" id="temp" min="0" max="2" step="0.05"></div>
+    <div class="p-sec"><div class="lab"><label for="topp">Top P</label><output id="toppO"></output></div><input type="range" id="topp" min="0" max="1" step="0.01"></div>
+    <div class="p-sec"><label for="maxt">Max output tokens</label><input type="number" id="maxt" min="1" max="65536" step="1"></div>
+  </aside>
+</div>
+
+<div id="toast" class="toast" role="status"></div>
+<script type="module" src="/app.js"></script>
+</body>
+</html>

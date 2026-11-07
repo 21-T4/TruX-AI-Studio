@@ -1,0 +1,17 @@
+{
+  "name": "trux-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TruX Studio - a dark AI studio with Google sign-in, per-user API keys and Vertex AI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "dev": "node --watch --env-file-if-exists=.env server.js"
+  },
+  "engines": { "node": ">=22.9" },
+  "dependencies": {
+    "express": "^4.21.2",
+    "firebase-admin": "^13.0.0",
+    "google-auth-library": "^9.15.0"
+  }
+}
