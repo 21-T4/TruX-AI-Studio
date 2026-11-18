@@ -40,6 +40,7 @@ gcloud run deploy trux-studio --source . --region us-central1 --allow-unauthenti
 ## Run locally
 
 ```bash
+cp .env.example .env   # public Firebase web config, same project as TruX-Code
 gcloud auth application-default login
 npm install
 npm start        # http://localhost:8080
