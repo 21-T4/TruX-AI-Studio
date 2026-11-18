@@ -7,6 +7,11 @@ A dark AI studio (like Google AI Studio / Claude Playground) for the TruX model 
 - All model calls go through Vertex AI
 - OpenAI-compatible API you can call from the terminal
 
+## Access
+
+- Signed out: the app opens and the **Docs** are readable. **Playground / chats**, **API key** and every API endpoint need a signed-in account (the server answers 401 otherwise).
+- Theme: pure black in dark mode, pure white in light mode. It follows the device setting; the sun/moon button overrides it.
+
 ## Models
 
 | Public name    | API id          | Limit                |

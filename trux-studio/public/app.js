@@ -5,7 +5,7 @@ import {
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
-const MARK = '<span class="mark"><svg viewBox="0 0 32 32"><path d="M9 10h14M16 10v13" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/></svg></span>';
+const MARK = '<span class="mark"><svg viewBox="0 0 32 32"><path d="M9 10h14M16 10v13" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/></svg></span>';
 
 let auth = null;
 let user = null;
@@ -39,7 +39,7 @@ async function copyText(text) {
   toast('Copied');
 }
 
-async function token() { return user.getIdToken(); }
+async function token() { if (!user) throw new Error('Sign in to use this.'); return user.getIdToken(); }
 
 async function api(path, options = {}) {
   const res = await fetch(path, {
@@ -141,7 +141,7 @@ function emptyState() {
   const el = document.createElement('div');
   el.className = 'empty';
   el.innerHTML = '<h2>Hello, <span class="grad"></span></h2><p>What do you want to build with TruX today?</p><div class="sugs"></div>';
-  el.querySelector('.grad').textContent = (user.displayName || 'there').split(' ')[0];
+  el.querySelector('.grad').textContent = ((me && me.user.displayName) || 'there').split(' ')[0];
   const ideas = ['Explain how transformers work, simply', 'Write a Python script that renames files by date', 'Give me 5 startup ideas for students', 'Review my code for performance problems'];
   for (const idea of ideas) {
     const b = document.createElement('button');
@@ -251,6 +251,9 @@ function renderKeyPage() {
     bar.append(fill); row.append(t, bar); usage.append(row);
   }
 
+}
+
+function renderDocs() {
   const docs = $('#docModels');
   docs.textContent = '';
   for (const m of models) {
@@ -262,12 +265,43 @@ function renderKeyPage() {
 }
 
 // ---- navigation ----------------------------------------------------------------------------------
+const LOCKED = {
+  play: ['Sign in to use the Playground', 'Chats and the Playground need a TruX account. The docs are open to everyone.'],
+  key: ['Sign in to see your API key', 'API keys belong to your TruX account. The docs are open to everyone.']
+};
+let wantedView = null;
+
 function setView(view) {
+  if (!me && LOCKED[view]) { wantedView = view; showLock(view); return; }
   $('#app').dataset.view = view;
   $$('.view').forEach((v) => v.classList.toggle('active', v.id === 'v-' + view));
   $$('.item').forEach((i) => i.classList.toggle('active', i.dataset.view === view));
   $('#topTitle').textContent = view === 'play' ? (current() ? current().title : 'Playground') : view === 'key' ? 'API key' : 'Docs';
-  if (view !== 'play') renderKeyPage();
+  if (view === 'key') renderKeyPage();
+  if (view === 'docs') renderDocs();
+}
+
+function showLock(view) {
+  const [title, text] = LOCKED[view] || ['Sign in to continue', 'Sign in with your TruX account to use TruX Studio.'];
+  $('#lockTitle').textContent = title;
+  $('#lockText').textContent = text;
+  $('#app').dataset.view = 'lock';
+  $$('.view').forEach((v) => v.classList.toggle('active', v.id === 'v-lock'));
+  $$('.item').forEach((i) => i.classList.toggle('active', i.dataset.view === view));
+  $('#topTitle').textContent = 'Sign in';
+}
+
+function applyAccess() {
+  const guest = !me;
+  document.body.classList.toggle('guest', guest);
+  $('#meBox').hidden = guest;
+  $('#guestBox').hidden = !guest;
+}
+
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  const m = document.querySelector('meta[name="theme-color"]');
+  if (m) m.content = t === 'light' ? '#ffffff' : '#000000';
 }
 function closeDrawers() { document.body.classList.remove('nav-open', 'params-open'); }
 
@@ -378,15 +412,18 @@ function autosize() {
 }
 
 // ---- auth flow -----------------------------------------------------------------------------------
-function showLoginError(message) { const e = $('#loginErr'); e.textContent = message; e.hidden = !message; }
+function showLoginError(message) {
+  const e = $('#loginErr'); e.textContent = message; e.hidden = !message;
+  if (message && !me) showLock(wantedView || 'play');
+}
 
 async function enter() {
   try {
     $('#googleBtn').disabled = true;
-    models = (await (await fetch('/api/models')).json()).models;
     me = await api('/api/me');
     fullKey = me.key || null;
   } catch (error) {
+    me = null; fullKey = null;
     $('#googleBtn').disabled = false;
     showLoginError(error.message || 'Could not load your account.');
     await signOut(auth).catch(() => {});
@@ -400,42 +437,56 @@ async function enter() {
   const av = $('#avatar');
   if (me.user.photoURL) { av.src = me.user.photoURL; av.referrerPolicy = 'no-referrer'; av.hidden = false; } else av.hidden = true;
   currentId = null;
-  renderModels(); renderChip(); renderParams(); renderHistory(); renderThread(); renderKeyPage();
-  $('#login').hidden = true; $('#app').hidden = false;
-  setView(fullKey ? 'key' : 'play');
+  applyAccess();
+  renderModels(); renderChip(); renderParams(); renderHistory(); renderThread(); renderKeyPage(); renderDocs();
+  const target = fullKey ? 'key' : (wantedView || 'play');
+  wantedView = null;
+  setView(target);
 }
 
 function leave() {
-  me = null; fullKey = null; chats = []; currentId = null;
   if (streaming) streaming.abort();
-  $('#app').hidden = true; $('#login').hidden = false;
-  closeDrawers();
+  me = null; fullKey = null; chats = []; currentId = null;
+  $('#thread').textContent = ''; $('#history').textContent = ''; $('#keyText').textContent = '';
+  $('#curlSample').textContent = ''; $('#pySample').textContent = '';
+  applyAccess(); closeDrawers();
+  setView('docs');
 }
 
 async function login() {
   showLoginError('');
+  if (!auth) return showLoginError(bootError || 'Sign-in is not available right now.');
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' });
   try {
     await signInWithPopup(auth, provider);
   } catch (error) {
     const code = error && error.code;
-    if (code === 'auth/popup-blocked') return signInWithRedirect(auth, provider);
+    if (code === 'auth/popup-blocked' || code === 'auth/operation-not-supported-in-this-environment') return signInWithRedirect(auth, provider);
     if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return;
     if (code === 'auth/unauthorized-domain') {
       return showLoginError('This domain is not authorised in Firebase yet. Add it under Authentication > Settings > Authorized domains.');
     }
-    showLoginError('Google sign-in failed. Please try again.');
+    if (code === 'auth/operation-not-allowed') return showLoginError('Google sign-in is not enabled in Firebase yet (Authentication > Sign-in method).');
+    showLoginError('Google sign-in failed (' + (code || 'unknown error') + '). Please try again.');
   }
 }
 
 // ---- events --------------------------------------------------------------------------------------
 $('#googleBtn').addEventListener('click', login);
+$('#navSignIn').addEventListener('click', () => { closeDrawers(); login(); });
+$('#topSignIn').addEventListener('click', () => { if (!me) { wantedView = wantedView || 'play'; showLock(wantedView); } login(); });
+$('#browseDocs').addEventListener('click', () => { showLoginError(''); setView('docs'); });
+$('#themeBtn').addEventListener('click', () => {
+  const t = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+  applyTheme(t);
+  try { localStorage.setItem('trux.theme', t); } catch {}
+});
 $('#signOut').addEventListener('click', () => signOut(auth));
-$('#newChat').addEventListener('click', newChat);
+$('#newChat').addEventListener('click', () => (me ? newChat() : (closeDrawers(), setView('play'))));
 $('#openNav').addEventListener('click', () => document.body.classList.add('nav-open'));
-$('#openParams').addEventListener('click', () => document.body.classList.add('params-open'));
-$('#modelChip').addEventListener('click', () => document.body.classList.add('params-open'));
+$('#openParams').addEventListener('click', () => me && document.body.classList.add('params-open'));
+$('#modelChip').addEventListener('click', () => me && document.body.classList.add('params-open'));
 $('#closeParams').addEventListener('click', closeDrawers);
 $('#scrim').addEventListener('click', closeDrawers);
 $$('.item').forEach((i) => i.addEventListener('click', () => { setView(i.dataset.view); closeDrawers(); }));
@@ -476,15 +527,19 @@ document.addEventListener('click', (e) => {
 });
 
 // ---- boot ----------------------------------------------------------------------------------------
+let bootError = '';
 (async function boot() {
+  applyTheme(document.documentElement.dataset.theme || 'dark');
+  applyAccess();
+  try { models = (await (await fetch('/api/models')).json()).models || []; } catch { models = []; }
+  renderDocs();
   try {
     const res = await fetch('/api/config');
     const cfg = await res.json();
-    if (!cfg.configured) throw new Error('Firebase is not configured. Check the FIREBASE_* values in .env.');
+    if (!cfg.configured) throw new Error('Firebase is not configured on the server.');
     auth = getAuth(initializeApp(cfg.firebaseConfig));
     onAuthStateChanged(auth, (u) => { user = u; if (u) enter(); else leave(); });
   } catch (error) {
-    showLoginError(error.message || 'Could not start TruX Studio.');
-    $('#googleBtn').disabled = true;
+    bootError = 'Sign-in could not start: ' + (error.message || 'unknown error');
   }
 })();
