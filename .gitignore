@@ -1,0 +1,13 @@
+node_modules/
+.env
+.env.*
+!.env.example
+npm-debug.log*
+.DS_Store
+
+# Local-only credentials; never commit these.
+sa.json
+**/*service-account*.json
+**/*firebase-adminsdk*.json
+*.pem
+*.key
