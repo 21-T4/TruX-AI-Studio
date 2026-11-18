@@ -9,7 +9,21 @@ const { MODELS, getModel, publicModel } = require('./lib/models');
 const store = require('./lib/store');
 const vertex = require('./lib/vertex');
 
-initializeApp({ projectId: process.env.FIREBASE_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT });
+// Public Firebase web config of the shared TruX project (same as TruX-AI and TruX-Code). These are not secrets.
+// They are only defaults: anything set in the environment / .env wins. Without them a deployment that never
+// loaded .env would have no project id, so sign-in tokens could not be verified and sign-in would "do nothing".
+const FIREBASE_DEFAULTS = {
+  FIREBASE_API_KEY: 'AIzaSyAs_GDrzlBaucHfiff0Y6cA8GVHjFTA62Q',
+  FIREBASE_AUTH_DOMAIN: 'trux-ai.firebaseapp.com',
+  FIREBASE_PROJECT_ID: 'trux-ai',
+  FIREBASE_STORAGE_BUCKET: 'trux-ai.firebasestorage.app',
+  FIREBASE_MESSAGING_SENDER_ID: '59313097411',
+  FIREBASE_APP_ID: '1:59313097411:web:32e4158bfb733fa7cfb076',
+  FIREBASE_MEASUREMENT_ID: 'G-C32LC29QHC'
+};
+const setting = (name) => String(process.env[name] || FIREBASE_DEFAULTS[name] || '').trim();
+
+initializeApp({ projectId: setting('FIREBASE_PROJECT_ID') || process.env.GOOGLE_CLOUD_PROJECT });
 
 const app = express();
 const publicDir = path.join(__dirname, 'public');
@@ -182,15 +196,14 @@ app.get('/healthz', (_req, res) => res.json({ status: 'ok' }));
 // Firebase web config is public client config, not a server credential.
 app.get('/api/config', (_req, res) => {
   res.setHeader('Cache-Control', 'no-store');
-  const get = (name) => String(process.env[name] || '').trim();
   const firebaseConfig = {
-    apiKey: get('FIREBASE_API_KEY'),
-    authDomain: get('FIREBASE_AUTH_DOMAIN'),
-    projectId: get('FIREBASE_PROJECT_ID'),
-    storageBucket: get('FIREBASE_STORAGE_BUCKET'),
-    messagingSenderId: get('FIREBASE_MESSAGING_SENDER_ID'),
-    appId: get('FIREBASE_APP_ID'),
-    measurementId: get('FIREBASE_MEASUREMENT_ID')
+    apiKey: setting('FIREBASE_API_KEY'),
+    authDomain: setting('FIREBASE_AUTH_DOMAIN'),
+    projectId: setting('FIREBASE_PROJECT_ID'),
+    storageBucket: setting('FIREBASE_STORAGE_BUCKET'),
+    messagingSenderId: setting('FIREBASE_MESSAGING_SENDER_ID'),
+    appId: setting('FIREBASE_APP_ID'),
+    measurementId: setting('FIREBASE_MEASUREMENT_ID')
   };
   const configured = ['apiKey', 'authDomain', 'projectId', 'appId'].every((k) => firebaseConfig[k]);
   res.status(configured ? 200 : 503).json({ configured, firebaseConfig: configured ? firebaseConfig : null });

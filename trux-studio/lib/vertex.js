@@ -5,7 +5,7 @@ const { GoogleAuth } = require('google-auth-library');
 const auth = new GoogleAuth({ scopes: ['https://www.googleapis.com/auth/cloud-platform'] });
 
 function endpoint(model) {
-  const project = process.env.GOOGLE_CLOUD_PROJECT || process.env.FIREBASE_PROJECT_ID;
+  const project = process.env.GOOGLE_CLOUD_PROJECT || process.env.FIREBASE_PROJECT_ID || 'trux-ai';
   const location = process.env.VERTEX_AI_LOCATION || 'global';
   const host = location === 'global' ? 'aiplatform.googleapis.com' : location + '-aiplatform.googleapis.com';
   return 'https://' + host + '/v1/projects/' + project + '/locations/' + location +
